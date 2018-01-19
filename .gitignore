@@ -1,3 +1,6 @@
 Unity/Build/
 Unity/Library/
 Unity/Temp/
+Unity/.vs/
+Unity/Unity.csproj
+*.sln
