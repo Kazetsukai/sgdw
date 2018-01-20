@@ -4,3 +4,5 @@ Unity/Temp/
 Unity/.vs/
 Unity/Unity.csproj
 *.sln
+PixelTools/Library/
+PixelTools/Temp/
