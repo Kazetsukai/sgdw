@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.IO;
 
 public class AnimationMaster : MonoBehaviour {
 
@@ -10,14 +11,17 @@ public class AnimationMaster : MonoBehaviour {
     public RenderTexture texture;
 
     float rotation = 180;
+    bool rendering;
 
     AnimationState[] animations = new AnimationState[0];
+    Animation animation;
 
     float scroll;
 
 	// Use this for initialization
 	void Start () {
-        animations = animationTarget.GetComponent<Animation>().OfType<AnimationState>().ToArray();
+        animation = animationTarget.GetComponent<Animation>();
+        animations = animation.OfType<AnimationState>().ToArray();
 	}
 	
 	// Update is called once per frame
@@ -35,9 +39,9 @@ public class AnimationMaster : MonoBehaviour {
             {
                 animationTarget.GetComponent<Animation>().Play(anim.name);
             }
-            //if (GUI.Button(new Rect(190, y, 30, 30), "rec"))
+            if (!rendering && GUI.Button(new Rect(190, y, 30, 30), "rec"))
             {
-              //  animationTarget.GetComponent<Animation>().Play(anim.name);
+                StartCoroutine(Render(anim.name));
             }
             y += 35;
         }
@@ -63,5 +67,44 @@ public class AnimationMaster : MonoBehaviour {
         rotationTarget.transform.localRotation = Quaternion.Euler(0, rotation, 0);
 
         GUI.Label(new Rect(330, 20, 50, 30), rotationTarget.transform.localRotation.eulerAngles.y.ToString());
+    }
+
+    IEnumerator Render(string animName)
+    {
+        rendering = true;
+
+        animation.Play(animName);
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        Application.targetFrameRate = 10;
+        int i = 0;
+        
+        while (animation.isPlaying)
+        {
+            DumpRenderTexture(texture, animName + "_" + rotation + "_" + i.ToString("000") + ".png");
+            i++;
+            yield return new WaitForEndOfFrame();
+        }
+
+        Application.targetFrameRate = -1;
+
+
+
+        Debug.Log("Done");
+
+        rendering = false;
+    }
+
+    public static void DumpRenderTexture(RenderTexture rt, string pngOutPath)
+    {
+        var oldRT = RenderTexture.active;
+
+        var tex = new Texture2D(rt.width, rt.height);
+        RenderTexture.active = rt;
+        tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0);
+        tex.Apply();
+
+        File.WriteAllBytes(pngOutPath, tex.EncodeToPNG());
+        RenderTexture.active = oldRT;
     }
 }

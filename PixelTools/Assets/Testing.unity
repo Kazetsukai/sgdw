@@ -142,7 +142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   animationTarget: {fileID: 638182805}
   rotationTarget: {fileID: 638182805}
-  texture: {fileID: 8400000, guid: 5d7c6d14a76e7344599025f963a01610, type: 2}
+  texture: {fileID: 8400000, guid: c537be7ff5554de4ea2138b3d6a31ca5, type: 2}
 --- !u!4 &307699731
 Transform:
   m_ObjectHideFlags: 0
@@ -395,6 +395,18 @@ Animation:
   m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_CullingType: 0
+--- !u!114 &638182810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 638182805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2cfb96c11e32fd14e9db904bb258fadf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  root: {fileID: 1151438099}
 --- !u!1 &721659503
 GameObject:
   m_ObjectHideFlags: 0
@@ -467,8 +479,8 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
+  near clip plane: 3
+  far clip plane: 10
   field of view: 60
   orthographic: 1
   orthographic size: 3
@@ -477,7 +489,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 4294967039
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: 5d7c6d14a76e7344599025f963a01610, type: 2}
+  m_TargetTexture: {fileID: 8400000, guid: c537be7ff5554de4ea2138b3d6a31ca5, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -503,6 +515,10 @@ Transform:
 --- !u!1 &1151438098 stripped
 GameObject:
   m_PrefabParentObject: {fileID: 127812, guid: 7c265750c9bef294081fc34a00f32024, type: 2}
+  m_PrefabInternal: {fileID: 1422539590}
+--- !u!4 &1151438099 stripped
+Transform:
+  m_PrefabParentObject: {fileID: 487940, guid: 7c265750c9bef294081fc34a00f32024, type: 2}
   m_PrefabInternal: {fileID: 1422539590}
 --- !u!1 &1160097556
 GameObject:

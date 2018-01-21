@@ -15,7 +15,7 @@ public class MatrixTest : MonoBehaviour {
     // Use this for initialization
     void Start () {
         camera = GetComponent<Camera>();
-
+        top = true;
     }
 
     // Update is called once per frame
