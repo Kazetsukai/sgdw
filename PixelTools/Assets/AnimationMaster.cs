@@ -6,9 +6,13 @@ using System.IO;
 
 public class AnimationMaster : MonoBehaviour {
 
+    public GameObject[] toggleables;
     public GameObject animationTarget;
     public GameObject rotationTarget;
     public RenderTexture texture;
+    public RenderTexture depthTexture;
+    public Shader normalShader;
+    public Camera camera;
 
     float rotation = 180;
     bool rendering;
@@ -22,6 +26,7 @@ public class AnimationMaster : MonoBehaviour {
 	void Start () {
         animation = animationTarget.GetComponent<Animation>();
         animations = animation.OfType<AnimationState>().ToArray();
+        camera.targetTexture = texture;
 	}
 	
 	// Update is called once per frame
@@ -32,6 +37,8 @@ public class AnimationMaster : MonoBehaviour {
 
     void OnGUI()
     {
+        var br = new Vector2(Screen.width, Screen.height);
+
         int y = 20 + (int)scroll;
         foreach (var anim in animations)
         {
@@ -46,7 +53,16 @@ public class AnimationMaster : MonoBehaviour {
             y += 35;
         }
 
-        var br = new Vector2(Screen.width, Screen.height);
+        y = 20;
+        foreach (var toggle in toggleables)
+        {
+            if (GUI.Button(new Rect(br.x - 110, y, 100, 30), toggle.name))
+            {
+                toggle.SetActive(!toggle.activeInHierarchy);
+            }
+            y += 35;
+        }
+
 
         GUI.Box(new Rect(br.x - 300, br.y - 300, 256, 256), GUIContent.none);
         GUI.DrawTexture(new Rect(br.x - 300, br.y - 300, 256, 256), texture);
@@ -73,6 +89,11 @@ public class AnimationMaster : MonoBehaviour {
     {
         rendering = true;
 
+        var renderers = FindObjectsOfType<MeshRenderer>().ToList();
+        var renderers2 = FindObjectsOfType<SkinnedMeshRenderer>().ToList();
+        var shaders = renderers.ToDictionary(a => a, a => a.material.shader);
+        var shaders2 = renderers2.ToDictionary(a => a, a => a.material.shader);
+
         animation.Play(animName);
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
@@ -82,12 +103,27 @@ public class AnimationMaster : MonoBehaviour {
         while (animation.isPlaying)
         {
             DumpRenderTexture(texture, animName + "_" + rotation + "_" + i.ToString("000") + ".png");
+
+            renderers.ForEach((m) => m.material.shader = normalShader);
+            renderers2.ForEach((m) => m.material.shader = normalShader);
+            camera.targetTexture = depthTexture;
+            camera.Render();
+            DumpRenderTexture(depthTexture, animName + "_normal_" + rotation + "_" + i.ToString("000") + ".png");
+
+            renderers.ForEach((m) => m.material.shader = shaders[m]);
+            renderers2.ForEach((m) => m.material.shader = shaders2[m]);
+            camera.targetTexture = texture;
+
+
             i++;
             yield return new WaitForEndOfFrame();
         }
 
         Application.targetFrameRate = -1;
 
+
+        // TODO: Later
+        // var clip = animation.GetClip(animName);
 
 
         Debug.Log("Done");

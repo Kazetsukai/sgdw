@@ -316,7 +316,7 @@
   <ItemGroup>
     <None Include="Assets\3rdParty\LongswordAnimsetPro\Shaders\StandardSpecular2sided.shader" />
     <None Include="Assets\3rdParty\LongswordAnimsetPro\readme.txt" />
-    <None Include="Assets\Depth.shader" />
+    <None Include="Assets\WorldNormalShader.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
