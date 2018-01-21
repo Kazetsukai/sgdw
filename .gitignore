@@ -6,3 +6,4 @@ Unity/Unity.csproj
 *.sln
 PixelTools/Library/
 PixelTools/Temp/
+PixelTools/Build/

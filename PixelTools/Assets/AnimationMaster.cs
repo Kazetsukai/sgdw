@@ -6,7 +6,10 @@ using System.Linq;
 public class AnimationMaster : MonoBehaviour {
 
     public GameObject animationTarget;
+    public GameObject rotationTarget;
     public RenderTexture texture;
+
+    float rotation = 180;
 
     AnimationState[] animations = new AnimationState[0];
 
@@ -32,9 +35,33 @@ public class AnimationMaster : MonoBehaviour {
             {
                 animationTarget.GetComponent<Animation>().Play(anim.name);
             }
+            //if (GUI.Button(new Rect(190, y, 30, 30), "rec"))
+            {
+              //  animationTarget.GetComponent<Animation>().Play(anim.name);
+            }
             y += 35;
         }
 
-        GUI.DrawTexture(new Rect(700, 500, 256, 256), texture);
+        var br = new Vector2(Screen.width, Screen.height);
+
+        GUI.Box(new Rect(br.x - 300, br.y - 300, 256, 256), GUIContent.none);
+        GUI.DrawTexture(new Rect(br.x - 300, br.y - 300, 256, 256), texture);
+
+        if (GUI.Button(new Rect(250, 20, 30, 30), "<"))
+        {
+            rotation += 45;
+        }
+        if (GUI.Button(new Rect(290, 20, 30, 30), ">"))
+        {
+            rotation -= 45;
+        }
+
+        if (rotation < 0) rotation += 360;
+        if (rotation > 359) rotation -= 360;
+        rotation = Mathf.RoundToInt(rotation);
+
+        rotationTarget.transform.localRotation = Quaternion.Euler(0, rotation, 0);
+
+        GUI.Label(new Rect(330, 20, 50, 30), rotationTarget.transform.localRotation.eulerAngles.y.ToString());
     }
 }
