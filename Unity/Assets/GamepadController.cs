@@ -4,12 +4,10 @@ using UnityEngine;
 
 public class GamepadController : MonoBehaviour {
 
-    public float maxSpeed = 2;
+    public float maxSpeed = 3;
     public float turnSpeed = 0.2f;
 
     public bool snapped = true;
-
-    public Sprite[] directions;
 
     Vector3 actualPosition;
     Vector3 direction;
@@ -18,10 +16,15 @@ public class GamepadController : MonoBehaviour {
     public Transform shadow;
 
     float upVel;
+    bool attacking;
+
+    SpriteAnimator animator;
 
 	// Use this for initialization
 	void Start () {
         direction = Vector3.up;
+
+        animator = GetComponent<SpriteAnimator>();
 	}
 
     private void Update()
@@ -31,29 +34,73 @@ public class GamepadController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void FixedUpdate () {
+    void FixedUpdate() {
 
         var input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        targetDirection = input.normalized;
 
-        if (input.magnitude > 0.1f)
+        if (Input.GetButton("Fire1"))
         {
-            targetDirection = input.normalized;
+            attacking = true;
+        }
+        if (attacking)
+        {
+            input = Vector3.Project(input, direction);
+        }
+
+        // Update direction
+        if (input.magnitude > 0.1f && !attacking)
+        {
             var angle = Vector2.Angle(direction, targetDirection);
+            
             direction = Quaternion.RotateTowards(Quaternion.identity, Quaternion.FromToRotation(direction, targetDirection), turnSpeed + angle * 0.1f) * direction;
+            
             if (Vector2.Angle(direction, targetDirection) > 179)
             {
                 // Bump to force a direction
                 direction = Quaternion.AngleAxis(2, Vector3.forward) * direction;
             }
+            
             direction.z = 0;
-
-
-            var intDir = Mathf.RoundToInt(Mathf.Atan2(direction.x, direction.y) / (Mathf.PI / 4) + 4) % 8;
-
-            GetComponent<SpriteRenderer>().sprite = directions[intDir];
         }
 
-        if (upVel <= 0 && actualPosition.z == 0 && Input.GetButton("Fire1"))
+        var intDir = Mathf.RoundToInt(Mathf.Atan2(direction.x, direction.y) / (Mathf.PI / 4)) % 8;
+        if (intDir < 0) intDir += 8;
+
+        var proportionSpeed = Mathf.Max(0.1f, 120 - Mathf.Abs(Vector3.Angle(direction, targetDirection))) / 120f;
+
+        
+        // Move character (at least 1 pixel per frame, otherwise don't bother)
+        var movement = (Vector3)(input * maxSpeed * proportionSpeed);
+        if (movement.magnitude > 1)
+        {
+            // Move slower while attacking
+            if (attacking)
+                movement /= 2;
+
+            actualPosition += movement;
+        }
+
+        // Update animation
+        if (attacking)
+        {
+            animator.SetAnimation("attack1_" + intDir * 45, 0.05f, () =>
+            {
+                attacking = false;
+            });
+        }
+        else if (movement.magnitude > 1)
+        {
+            animator.SetAnimation("run_" + intDir * 45);
+        }
+        else
+        {
+            animator.SetAnimation("idle_" + intDir * 45);
+        }
+        
+
+        // Jumping
+        /*if (upVel <= 0 && actualPosition.z == 0 && Input.GetButton("Fire1"))
         {
             upVel = 2.5f;
         }
@@ -66,18 +113,12 @@ public class GamepadController : MonoBehaviour {
         {
             upVel = 0;
             actualPosition.z = 0;
-        }
+        }*/
 
-        var proportionSpeed = Mathf.Max(0.1f, 120 - Mathf.Abs(Vector3.Angle(direction, targetDirection))) / 120f;
-        Debug.Log(Vector3.Angle(direction, targetDirection));
-
-        actualPosition += (Vector3)(input * maxSpeed * proportionSpeed);
-
+        // Move to screen pos
         var screenPosition = WorldToScreen(actualPosition);
-
         Debug.DrawRay(screenPosition, direction * 20);
 
-        
 
         if (snapped)
             transform.localPosition = new Vector2(Mathf.RoundToInt(screenPosition.x), Mathf.RoundToInt(screenPosition.y));
